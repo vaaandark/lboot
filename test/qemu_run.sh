@@ -1,9 +1,20 @@
 #!/bin/sh
+set -eux
 
-cd "$(dirname "$0")" || exit 1
-mkdir -p esp/efi/boot
-cp ../target/x86_64-unknown-uefi/debug/lboot.efi esp/efi/boot/bootx64.efi
+boot='esp/efi/boot'
+target_dir='../target/x86_64-unknown-uefi/debug'
+default_bz='/boot/vmlinuz-linuz'
+
+cd "$(dirname "$0")"
+mkdir -p "$boot"
+cp "${target_dir}/lboot.efi" "${boot}/bootx64.efi"
+if [ ! -f "${boot}/bzImage.efi" ]; then
+    cp "$default_bz" esp/efi/boot/bzImage.efi
+fi
+
 qemu-system-x86_64 -enable-kvm \
+    -m 256M \
+    -serial stdio \
     -drive if=pflash,format=raw,readonly=on,file=OVMF_CODE.fd \
     -drive if=pflash,format=raw,readonly=on,file=OVMF_VARS.fd \
     -drive format=raw,file=fat:rw:esp

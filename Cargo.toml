@@ -7,6 +7,6 @@ edition = "2021"
 
 [dependencies]
 log = "0.4"
-uefi = "0.24"
+uefi = { version = "0.24", features = ["alloc"] }
 uefi-services = "0.21"
 
