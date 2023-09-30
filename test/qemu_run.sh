@@ -13,7 +13,7 @@ if [ ! -f "${boot}/bzImage.efi" ]; then
 fi
 
 qemu-system-x86_64 -enable-kvm \
-    -m 256M \
+    -m 1G \
     -serial stdio \
     -drive if=pflash,format=raw,readonly=on,file=OVMF_CODE.fd \
     -drive if=pflash,format=raw,readonly=on,file=OVMF_VARS.fd \
