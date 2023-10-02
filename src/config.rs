@@ -114,14 +114,12 @@ impl Config {
 	/// Load configuration file into memory.
 	pub fn load_from_file(bt: &BootServices, filename: &CStr16) -> Result<Config> {
 		let simple_fs_handle = *bt
-			.locate_handle_buffer(SearchType::ByProtocol(&SimpleFileSystem::GUID))
-			.unwrap()
+			.locate_handle_buffer(SearchType::ByProtocol(&SimpleFileSystem::GUID))?
 			.first()
-			.unwrap();
+			.ok_or(LbootError::CannotOpenConfig)?;
 		let mut simple_fs = bt
-			.open_protocol_exclusive::<SimpleFileSystem>(simple_fs_handle)
-			.unwrap();
-		let mut root = simple_fs.open_volume().unwrap();
+			.open_protocol_exclusive::<SimpleFileSystem>(simple_fs_handle)?;
+		let mut root = simple_fs.open_volume()?;
 		let mut file = root
 			.open(filename, FileMode::Read, FileAttribute::empty())
 			.map_err(|_| LbootError::CannotOpenConfig)?

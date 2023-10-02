@@ -15,6 +15,8 @@ pub enum LbootError {
     GenerateImagePathError,
     /// Cannot load kernel image into memory
     CannotLoadImageIntoMemory,
+    /// Pointer conversion error
+    PointerConversionError,
     /// Other UEFI-related errors
     UefiError(UefiError),
 }

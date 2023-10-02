@@ -18,7 +18,7 @@ fn main(image_handle: Handle, mut st: SystemTable<Boot>) -> Status {
     info!("Start booting...");
     let config = Config::load_from_file(st.boot_services(), cstr16!(r"\efi\boot\lboot.toml")).unwrap();
     let entries = config.parse().unwrap();
-    let entry = select_in_menu(&mut st, &entries);
+    let entry = select_in_menu(&mut st, &entries).unwrap();
     info!("Loading {}", entry);
     start_kernel_image(image_handle, st.boot_services(), entry).unwrap();
     Status::SUCCESS
