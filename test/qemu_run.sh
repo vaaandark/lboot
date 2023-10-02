@@ -6,7 +6,7 @@ target_dir='../target/x86_64-unknown-uefi/debug'
 default_bz='/boot/vmlinuz-linuz'
 
 efi="${target_dir}/lboot.efi"
-if [ "$#" -eq 2 ] && [ -n "$1" ]; then
+if [ "$#" -eq 1 ] && [ -n "$1" ]; then
     efi="${target_dir}/examples/$1.efi"
 fi
 
