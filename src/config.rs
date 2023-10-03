@@ -98,7 +98,7 @@ pub struct Config {
 	contents: Vec<u8>,
 }
 
-const BUFF_SIZE: usize = 256;
+const BUFF_SIZE: usize = 1024;
 
 #[derive(Debug)]
 enum LineType {
