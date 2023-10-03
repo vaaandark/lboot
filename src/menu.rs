@@ -41,6 +41,7 @@ pub fn select_in_menu<'a>(
     let mut selected: usize = 0;
     let mut last_selected: usize = 0;
     let mut time_out = false;
+    let mut has_input = false;
     let event_type = EventType::union(EventType::TIMER, EventType::NOTIFY_SIGNAL);
     let ctx: *mut bool = &mut time_out;
     let ctx = NonNull::new(ctx.cast::<c_void>()).ok_or(LbootError::PointerConversionError)?;
@@ -60,7 +61,7 @@ pub fn select_in_menu<'a>(
     st.stdout().clear()?;
     show_menu(entries, selected);
     loop {
-        if time_out {
+        if time_out && !has_input {
             st.stdout().clear()?;
             return Ok(&entries[selected]);
         }
@@ -70,6 +71,7 @@ pub fn select_in_menu<'a>(
             last_selected = selected;
         }
         if let Ok(Some(key)) = st.stdin().read_key() {
+            has_input = true;
             match key {
                 Key::Special(special) => match special {
                     ScanCode::UP => {
