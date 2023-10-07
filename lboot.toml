@@ -1,9 +1,5 @@
 [[entry]]
-name = 'Linux 6.5.5'
-vmlinux = 'efi\boot\bzImage.efi'
-param = 'initrd=efi\boot\initramfs-linux.img'
+name = "Arch Linux"
+vmlinux = '\vmlinuz-linux'
+param = 'initrd=\initramfs-linux.img root=UUID=48b884eb-2b80-4069-9972-6929c61430dd rw  loglevel=3 quiet'
 
-[[entry]]
-name = "Linux 6.4.16"
-vmlinux = 'efi\boot\bzImage6.4.16.efi'
-param = 'initrd=efi\boot\initramfs-linux.img'

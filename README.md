@@ -18,16 +18,16 @@ $ cargo build --target x86_64-unknown-uefi
 
 ### 配置文件
 
-配置文件采用 [TOML](https://toml.io/) 语法的一个子集编写，配置示例如 [lboot.toml](lboot.toml) ，**应该放在 `/efi/boot/lboot.toml`** 。
+配置文件采用 [TOML](https://toml.io/) 语法的一个子集编写，配置示例如 [lboot.toml](lboot.toml) ，**应该放在 EFI 分区下，如 `/boot/lboot.toml`** 。
 
 
 > 不支持注释和转义字符等语法
 
 ```toml
 [[entry]]
-name = 'Linux 6.5.5'
-vmlinux = 'efi\boot\bzImage'
-param = 'initrd=efi\boot\initramfs-linux.img'
+name = "Arch Linux"
+vmlinux = '\vmlinuz-linux'
+param = 'initrd=\initramfs-linux.img root=UUID=48b884eb-2b80-xxxx-xxxx-xxxxxxxxxxxx rw  loglevel=3 quiet'
 ```
 
 - `name` 该引导项的名称，可以为空。
@@ -38,13 +38,13 @@ param = 'initrd=efi\boot\initramfs-linux.img'
 
 > 应使用带有图形化界面的 qemu 软件包
 
-首先编辑配置文件并准备好 bzImage, initrd, rootfs 等用于 Linux 启动的文件。
+首先编辑配置文件 [lboot.qemu.toml](lboot.qemu.toml) 并准备好 bzImage, initrd, rootfs 等用于 Linux 启动的文件。
 
 创建用于仿真的路径，并将配置文件等放到指定位置：
 
 ```console
 $ mkdir -p test/esp/efi/boot
-$ cp path/to/lboot.toml test/esp/efi/boot/
+$ cp path/to/lboot.qemu.toml test/esp/efi/boot/lboot.toml
 $ cp path/to/bzImage test/esp/efi/boot/
 $ cp path/to/initramfs-linux.img test/esp/efi/boot
 ```
@@ -56,6 +56,16 @@ qemu 将会把 `esp` 目录认作是一个 FAT 驱动器分区，并会自动启
 ```console
 ./test/qemu_run.sh
 ```
+
+### 安装到操作系统
+
+假设将编译好的 `lboot.efi` 放到了 `/boot/EFI/lboot/lboot.efi`，EFI 系统分区在硬盘 /dev/sda 上：
+
+```console
+$ sudo ./lboot-install.sh /dev/sda /boot/EFI/lboot/lboot.efi
+```
+
+并将配置文件放到 `/boot/lboot.toml` 。
 
 ### 引导界面
 

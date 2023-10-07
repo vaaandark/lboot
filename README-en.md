@@ -1,6 +1,6 @@
 # lboot
 
-A lightweight boot loader implemented in Rust.
+**A Lightweight Bootloader** implemented in Rust.
 
 ## Compilation
 
@@ -8,55 +8,65 @@ A lightweight boot loader implemented in Rust.
 $ cargo build --target x86_64-unknown-uefi
 ```
 
-This will produce an executable: `target/x86_64-unknown-uefi/debug/lboot.efi`.
+The executable can be found at `target/x86_64-unknown-uefi/debug/lboot.efi`.
 
 ## Usage
 
-> The program is still in the testing phase. It is recommended to use qemu for simulation.
+> Note: This program is still in the testing phase. It is recommended to run it in the QEMU emulator.
 
 ### Configuration File
 
-The configuration file is written using a subset of the [TOML](https://toml.io/) syntax. An example configuration file, [lboot.toml](lboot.toml), **should be placed in `/efi/boot/lboot.toml`**.
+The configuration file is written in a subset of [TOML](https://toml.io/) syntax and should be placed in the EFI partition, for example, `/boot/lboot.toml`.
 
-> Comments and escape characters are not supported.
+> Note: Syntax features like comments and escape characters are not supported.
 
 ```toml
 [[entry]]
-name = 'Linux 6.5.5'
-vmlinux = 'efi\boot\bzImage'
-param = 'initrd=efi\boot\initramfs-linux.img'
+name = "Arch Linux"
+vmlinux = '\vmlinuz-linux'
+param = 'initrd=\initramfs-linux.img root=UUID=48b884eb-2b80-xxxx-xxxx-xxxxxxxxxxxx rw  loglevel=3 quiet'
 ```
 
-- `name`: The name of the boot item, can be empty.
-- `vmlinux`: The path to the kernel executable file used for booting. Should be an absolute path using `\` as the path separator.
+- `name`: The name of this boot entry, which can be empty.
+- `vmlinux`: The path to the kernel executable file used for booting. It should use absolute paths and `\` as the path separator.
 - `param`: The boot parameters for the Linux kernel.
 
-### qemu Simulation
+### QEMU Emulation
 
-> A qemu software package with a graphical interface should be used.
+> Ensure that you are using the QEMU software package with a graphical interface.
 
-First, edit the configuration file and prepare the bzImage, initrd, rootfs, and other files required for Linux boot.
+First, edit the configuration file [lboot.qemu.toml](lboot.qemu.toml) and prepare files such as bzImage, initrd, rootfs, etc., for Linux boot.
 
-Create a directory for simulation and place the configuration file in the specified location:
+Create the directory structure for emulation and place the configuration file in the specified location:
 
 ```console
 $ mkdir -p test/esp/efi/boot
-$ cp path/to/lboot.toml test/esp/efi/boot/
+$ cp path/to/lboot.qemu.toml test/esp/efi/boot/lboot.toml
 $ cp path/to/bzImage test/esp/efi/boot/
 $ cp path/to/initramfs-linux.img test/esp/efi/boot
 ```
 
-qemu will recognize the `esp` directory as a FAT drive partition and automatically boot into the `bootx64.efi` file inside it.
+QEMU will recognize the `esp` directory as a FAT drive partition and automatically boot to the `bootx64.efi` file inside it.
 
-The `qemu_run.sh` script in the `test` directory copies the executable file to `esp/efi/boot/bootx64.efi` and starts the qemu simulation with the appropriate command line parameters.
+The `qemu_run.sh` script in the `test` directory copies the executable file to `esp/efi/boot/bootx64.efi` and starts the QEMU emulation with the appropriate command-line parameters:
 
 ```console
 ./test/qemu_run.sh
 ```
 
+### Installation on the Operating System
+
+Assuming the compiled `lboot.efi` is placed in `/boot/EFI/lboot/lboot.efi`, and the EFI system partition is on the hard disk `/dev/sda`:
+
+```console
+$ sudo ./lboot-install.sh /dev/sda /boot/EFI/lboot/lboot.efi
+```
+
+Also, place the configuration file in `/boot/lboot.toml`.
+
 ### Boot Menu
 
-A menu interface similar to grub2 is used, where `>` indicates the selected boot item:
+This bootloader provides a menu interface similar to GRUB2, with the `>` indicating the currently selected boot entry:
 
 ```text
 > Linux 6.5.5@[efi\boot\bzImage.efi] -- initrd=efi\boot\initramfs-linux.img
@@ -64,6 +74,6 @@ A menu interface similar to grub2 is used, where `>` indicates the selected boot
   Linux 6.1.55@[efi\boot\bzImage6.1.55.efi] -- initrd=efi\boot\initramfs-linux.img
 ```
 
-`k` or `UP` to move up, `j` or `DOWN` to move down, `RETURN` or `RIGHT` or `l` to select the highlighted boot item.
+Use `k` or `UP` to move up, `j` or `DOWN` to move down, and `RETURN` or `RIGHT` or `l` to select the highlighted boot entry.
 
-If no selection is made within 3 seconds, the first boot item is automatically selected.
+If no selection is made within 3 seconds, the system will automatically boot into the first boot entry.
