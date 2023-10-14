@@ -16,6 +16,12 @@ check_ovmf() {
     fi
 }
 
+check_lboot_config() {
+    if [ ! -f esp/boot/lboot.toml ]; then
+        cp ../lboot.qemu.toml esp/efi/boot/lboot.toml
+    fi
+}
+
 if [ "$#" != 2 ]; then
     usage
     exit 1
@@ -24,10 +30,12 @@ fi
 # default options
 arch='x64'
 qemu_system='qemu-system-x86_64'
+efi_executable='bootx64.efi'
 
 if [ "$1" = 'arm' ] || [ "$1" = 'arm64' ] || [ "$1" = 'aarch64' ]; then
     arch='aarch64'
     qemu_system='qemu-system-aarch64'
+    efi_executable='bootaa64.efi'
 fi
 
 boot='esp/efi/boot'
@@ -36,9 +44,11 @@ efi="$(realpath --relative-to="$test_dir" "$2")"
 
 cd "$test_dir" || exit 1
 mkdir -p "$boot"
-cp "$efi" "${boot}/bootx64.efi"
+cp "$efi" "${boot}/${efi_executable}"
 
+check_lboot_config
 check_ovmf
+
 code="ovmf/${arch}/code.fd"
 vars="ovmf/${arch}/vars.fd"
 vars_read_only='on'

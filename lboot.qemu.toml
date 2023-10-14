@@ -1,9 +1,9 @@
 [[entry]]
 name = 'Linux 6.5.5'
-vmlinux = 'efi\boot\bzImage.efi'
-param = 'initrd=efi\boot\initramfs-linux.img'
+vmlinux = '\efi\boot\bzImage.efi'
+param = 'initrd=\efi\boot\initramfs-linux.img'
 
 [[entry]]
 name = "Linux 6.4.16"
-vmlinux = 'efi\boot\bzImage6.4.16.efi'
-param = 'initrd=efi\boot\initramfs-linux.img'
+vmlinux = '\efi\boot\bzImage6.4.16.efi'
+param = 'initrd=\efi\boot\initramfs-linux.img'

@@ -30,6 +30,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "lboot-test-runner"
+version = "0.1.0"
+dependencies = [
+ "lboot",
+ "log",
+ "qemu-exit",
+ "uefi",
+ "uefi-services",
+]
+
+[[package]]
 name = "log"
 version = "0.4.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -63,6 +74,12 @@ dependencies = [
  "quote",
  "syn 1.0.109",
 ]
+
+[[package]]
+name = "qemu-exit"
+version = "3.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8bb0fd6580eeed0103c054e3fba2c2618ff476943762f28a645b63b8692b21c9"
 
 [[package]]
 name = "quote"
