@@ -1,0 +1,5 @@
+[target.x86_64-unknown-uefi]
+runner = "test/qemu_run.sh x86_64"
+
+[target.aarch64-unknown-uefi]
+runner = "test/qemu_run.sh aarch64"

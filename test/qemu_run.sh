@@ -1,27 +1,44 @@
 #!/bin/sh
-set -eux
+
+usage() {
+    echo "Usage: $0 [arch] efi_path"
+}
+
+check_ovmf() {
+    OVMF_PREBUILT_TAG='edk2-stable202211-r1'
+    base_url="https://github.com/rust-osdev/ovmf-prebuilt/releases/download"
+    # need to download ovmf releases?
+    if [ ! -d ovmf ]; then
+        url="$(printf "%s/%s/%s-bin.tar.xz" "$base_url" "$OVMF_PREBUILT_TAG" "$OVMF_PREBUILT_TAG")"
+        echo "Downloading ovmf releases from $url"
+        mkdir ovmf
+        wget -q -O- "$url" | tar -xJ -C ovmf --strip-components=1
+    fi
+}
+
+if [ "$#" != 2 ]; then
+    usage
+    exit 1
+fi
 
 # default options
-target='x86_64-unknown-uefi'
-arch='x86_64'
+arch='x64'
 qemu_system='qemu-system-x86_64'
 
-if [ "$#" -eq 1 ] ; then
-    if [ "$1" = 'arm' ] || [ "$1" = 'arm64' ] || [ "$1" = 'aarch64' ]; then
-        arch='aarch64'
-        target='aarch64-unknown-uefi'
-        qemu_system='qemu-system-aarch64'
-    fi
+if [ "$1" = 'arm' ] || [ "$1" = 'arm64' ] || [ "$1" = 'aarch64' ]; then
+    arch='aarch64'
+    qemu_system='qemu-system-aarch64'
 fi
 
 boot='esp/efi/boot'
-target_dir="../target/${target}/debug"
-efi="${target_dir}/lboot.efi"
+test_dir="$(dirname "$0")"
+efi="$(realpath --relative-to="$test_dir" "$2")"
 
-cd "$(dirname "$0")"
+cd "$test_dir" || exit 1
 mkdir -p "$boot"
 cp "$efi" "${boot}/bootx64.efi"
 
+check_ovmf
 code="ovmf/${arch}/code.fd"
 vars="ovmf/${arch}/vars.fd"
 vars_read_only='on'
