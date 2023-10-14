@@ -1,27 +1,26 @@
 # lboot
 
-[简体中文](README.md) | [English](README-en.md)
+[简体中文](README-zh.md) | [English](README.md)
 
-由 Rust 语言实现的轻量级引导加载程序。
+**A Lightweight Bootloader** implemented in Rust.
 
-## 编译
+## Compilation
 
 ```console
-$ cargo build --target x86_64-unknown-uefi
+$ cargo build --release --target x86_64-unknown-uefi
 ```
 
-可执行文件在 `target/x86_64-unknown-uefi/debug/lboot.efi` 。
+The executable can be found at `target/x86_64-unknown-uefi/release/lboot.efi`.
 
-## 使用
+## Usage
 
-> 程序尚在测试阶段，建议使用 qemu 模拟运行
+> Note: This program is still in the testing phase. It is recommended to run it in the QEMU emulator.
 
-### 配置文件
+### Configuration File
 
-配置文件采用 [TOML](https://toml.io/) 语法的一个子集编写，配置示例如 [lboot.toml](lboot.toml) ，**应该放在 EFI 分区下，如 `/boot/lboot.toml`** 。
+The configuration file is written in a subset of [TOML](https://toml.io/) syntax and should be placed in the EFI partition, for example, `/boot/lboot.toml`.
 
-
-> 不支持注释和转义字符等语法
+> Note: Syntax features like comments and escape characters are not supported.
 
 ```toml
 [[entry]]
@@ -30,17 +29,17 @@ vmlinux = '\vmlinuz-linux'
 param = 'initrd=\initramfs-linux.img root=UUID=48b884eb-2b80-xxxx-xxxx-xxxxxxxxxxxx rw  loglevel=3 quiet'
 ```
 
-- `name` 该引导项的名称，可以为空。
-- `vmlinux` 用于引导的内核可执行文件的路径，应该使用绝对路径并以 `\` 作为路径分隔符。
-- `param` Linux 内核的启动参数。
+- `name`: The name of this boot entry, which can be empty.
+- `vmlinux`: The path to the kernel executable file used for booting. It should use absolute paths and `\` as the path separator.
+- `param`: The boot parameters for the Linux kernel.
 
-### qemu 仿真
+### QEMU Emulation
 
-> 应使用带有图形化界面的 qemu 软件包
+> Ensure that you are using the QEMU software package with a graphical interface.
 
-首先编辑配置文件 [lboot.qemu.toml](lboot.qemu.toml) 并准备好 bzImage, initrd, rootfs 等用于 Linux 启动的文件。
+First, edit the configuration file [lboot.qemu.toml](lboot.qemu.toml) and prepare files such as bzImage, initrd, rootfs, etc., for Linux boot.
 
-创建用于仿真的路径，并将配置文件等放到指定位置：
+Create the directory structure for emulation and place the configuration file in the specified location:
 
 ```console
 $ mkdir -p test/esp/efi/boot
@@ -49,34 +48,43 @@ $ cp path/to/bzImage test/esp/efi/boot/
 $ cp path/to/initramfs-linux.img test/esp/efi/boot
 ```
 
-qemu 将会把 `esp` 目录认作是一个 FAT 驱动器分区，并会自动启动到其中的 `bootx64.efi` 文件。
-
-`test` 目录下的 `qemu_run.sh` 脚本能将可执行文件复制到 `esp/efi/boot/bootx64.efi`，并以适当的命令行参数启动 qemu 仿真。
+The script `qemu_run.sh` in the `test` directory copies the executable file to `esp/efi/boot/boot{x64,aa64}.efi` and starts the qemu emulation with the appropriate command line parameters. With this wrapper script, you can directly run the program in qemu using `cargo run`:
 
 ```console
-./test/qemu_run.sh
+$ cargo run --target x86_64-unknown-uefi  # x86_64 architecture emulation
+$ cargo run --target aarch64-unknown-uefi # aarch64 architecture emulation 
 ```
 
-### 安装到操作系统
+### Unit Testing
 
-假设将编译好的 `lboot.efi` 放到了 `/boot/EFI/lboot/lboot.efi`，EFI 系统分区在硬盘 /dev/sda 上：
+Unit testing is located in the `lboot-test-runner` directory, and can also be started directly using `cargo run`:
+
+```console
+$ cd lboot-test-runner
+$ ls examples # View test units
+$ cargo run --example --target x86_64-unknown-uefi menu_test # Using the menu module as an example for testing under x86_64 architecture emulation
+```
+
+### Installation on the Operating System
+
+Assuming the compiled `lboot.efi` is placed in `/boot/EFI/lboot/lboot.efi`, and the EFI system partition is on the hard disk `/dev/sda`:
 
 ```console
 $ sudo ./lboot-install.sh /dev/sda /boot/EFI/lboot/lboot.efi
 ```
 
-并将配置文件放到 `/boot/lboot.toml` 。
+Also, place the configuration file in `/boot/lboot.toml`.
 
-### 引导界面
+### Boot Menu
 
-使用类似 grub2 的菜单界面，`>` 用于指示被选中的引导项：
+This bootloader provides a menu interface similar to GRUB2, with the `>` indicating the currently selected boot entry:
 
 ```text
-> Linux 6.5.5@[efi\boot\bzImage.efi] -- initrd=efi\boot\initramfs-linux.img
-  Linux 6.4.16@[efi\boot\bzImage6.4.16.efi] -- initrd=efi\boot\initramfs-linux.img
-  Linux 6.1.55@[efi\boot\bzImage6.1.55.efi] -- initrd=efi\boot\initramfs-linux.img
+> Linux 6.5.5@[\efi\boot\bzImage.efi] -- initrd=\efi\boot\initramfs-linux.img
+  Linux 6.4.16@[\efi\boot\bzImage6.4.16.efi] -- initrd=\efi\boot\initramfs-linux.img
+  Linux 6.1.55@[\efi\boot\bzImage6.1.55.efi] -- initrd=\efi\boot\initramfs-linux.img
 ```
 
-`k` 或 `UP` 向上，`j` 或 `DOWN` 向下，`RETURN` 或 `RIGHT` 或 `l` 选择进入选中引导项。
+Use `k` or `UP` to move up, `j` or `DOWN` to move down, and `RETURN` or `RIGHT` or `l` to select the highlighted boot entry.
 
-如果在 3 秒内没有选择，则自动进入第一个引导项。
+If no selection is made within 3 seconds, the system will automatically boot into the first boot entry.
