@@ -1,9 +1,9 @@
 [[entry]]
-name = 'Linux 6.5.5'
-vmlinux = '\efi\boot\bzImage.efi'
-param = 'initrd=\efi\boot\initramfs-linux.img'
+name = 'Linux 6.5.5 aarch64'
+vmlinux = '\efi\boot\Image-aarch64'
+param = 'initrd=\efi\boot\initrd-aarch64.img root=/dev/vda1 acpi=on'
 
 [[entry]]
-name = "Linux 6.4.16"
-vmlinux = '\efi\boot\bzImage6.4.16.efi'
-param = 'initrd=\efi\boot\initramfs-linux.img'
+name = 'Linux 6.5.5 x86_64'
+vmlinux = '\efi\boot\bzImage-x86_64'
+param = 'initrd=\efi\boot\initrd-x86_64.img root=/dev/sda1'
