@@ -17,7 +17,7 @@ check_ovmf() {
 }
 
 check_lboot_config() {
-    if [ ! -f esp/boot/lboot.toml ]; then
+    if [ ! -f esp/efi/boot/lboot.toml ]; then
         cp ../lboot.qemu.toml esp/efi/boot/lboot.toml
     fi
 }
