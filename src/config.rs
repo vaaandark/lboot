@@ -195,24 +195,16 @@ impl Config {
 	/// Parse the loaded file and return boot entries.
 	pub fn parse(&self) -> Result<Vec<Entry>> {
 		let contents = &self.contents;
-		let mut result = Vec::new();
+		let mut result: Vec<Entry<'_>> = Vec::new();
 		let mut rest = 0;
 		while let Some(len) = contents[rest..].iter().position(|x| *x == b'\n') {
 			let line = &contents[rest..rest + len];
 			let line_type = Config::parse_line(line);
+            let last_entry = result.last_mut().ok_or(LbootError::WrongConfig);
 			match line_type {
-				LineType::Name(_) | LineType::Vmlinux(_) | LineType::Param(_) => {
-					let last_entry: &mut Entry =
-						result.last_mut().ok_or(LbootError::WrongConfig)?;
-					match line_type {
-						LineType::Name(name) => last_entry.name = Some(BoxedCStr16::new(name)),
-						LineType::Vmlinux(vmlinux) => {
-							last_entry.vmlinux = Some(BoxedCStr16::new(vmlinux))
-						}
-						LineType::Param(param) => last_entry.param = Some(BoxedCStr16::new(param)),
-						_ => unreachable!(),
-					}
-				}
+                LineType::Name(name) => last_entry?.name = Some(BoxedCStr16::new(name)),
+                LineType::Vmlinux(vmlinux) => last_entry?.vmlinux = Some(BoxedCStr16::new(vmlinux)),
+                LineType::Param(param) => last_entry?.param = Some(BoxedCStr16::new(param)),
 				LineType::Blank => (),
 				LineType::Unknown => return Err(LbootError::WrongConfig),
 				LineType::NewEntry => {
