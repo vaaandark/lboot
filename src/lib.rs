@@ -2,7 +2,7 @@
 #![no_main]
 #![no_std]
 
-pub mod error;
 pub mod config;
+pub mod error;
 pub mod image;
 pub mod menu;

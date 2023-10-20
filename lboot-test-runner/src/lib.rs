@@ -2,7 +2,7 @@
 #![no_std]
 
 use log::info;
-use uefi::table::{SystemTable, Boot};
+use uefi::table::{Boot, SystemTable};
 
 #[allow(unused)]
 pub fn shutdown(mut st: SystemTable<Boot>) -> ! {

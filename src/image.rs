@@ -23,8 +23,8 @@ fn get_kernel_device_path<'a>(
     path_name: &CStr16,
     storage: &'a mut Vec<u8>,
 ) -> Result<&'a DevicePath> {
-    let loaded_image_device_path = bt
-        .open_protocol_exclusive::<LoadedImageDevicePath>(bt.image_handle())?;
+    let loaded_image_device_path =
+        bt.open_protocol_exclusive::<LoadedImageDevicePath>(bt.image_handle())?;
 
     let mut builder = DevicePathBuilder::with_vec(storage);
     for node in loaded_image_device_path.node_iter() {
@@ -57,8 +57,7 @@ pub fn start_kernel_image(image_handle: Handle, bt: &BootServices, entry: &Entry
             },
         )
         .map_err(|_| LbootError::CannotLoadImageIntoMemory)?;
-    let mut kernel_loaded_image = bt
-        .open_protocol_exclusive::<LoadedImage>(kernel_image_handle)?;
+    let mut kernel_loaded_image = bt.open_protocol_exclusive::<LoadedImage>(kernel_image_handle)?;
     if let Some(options) = &entry.param {
         let load_options = options.str;
         unsafe {
